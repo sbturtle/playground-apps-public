@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>한입 퀴즈</title>
+  </head>
+  <body>
+    <main id="app">
+      <section id="screen-start">
+        <h1>한입 퀴즈</h1>
+        <p id="best"></p>
+        <button id="btn-start">시작</button>
+      </section>
+
+      <section id="screen-question" hidden>
+        <div class="hud">
+          <span id="score">0점</span>
+          <span id="combo"></span>
+          <span id="lives"></span>
+          <span id="timer"></span>
+        </div>
+        <h2 id="question-text"></h2>
+        <ol id="choices"></ol>
+        <p id="feedback" aria-live="polite"></p>
+        <button id="btn-next" hidden>다음</button>
+      </section>
+
+      <section id="screen-result" hidden>
+        <h2>결과</h2>
+        <p id="result-text"></p>
+        <button id="btn-retry">다시 하기</button>
+      </section>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
