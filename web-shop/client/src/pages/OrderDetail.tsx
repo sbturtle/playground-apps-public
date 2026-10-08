@@ -8,9 +8,18 @@ export function OrderDetail() {
   const [order, setOrder] = useState<Detail | null>(null);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [address, setAddress] = useState('');
+  const [memo, setMemo] = useState('');
 
   useEffect(() => {
-    api.order(Number(orderId)).then(setOrder).catch((err) => setMessage(err.message));
+    api
+      .order(Number(orderId))
+      .then((loaded) => {
+        setOrder(loaded);
+        setAddress(loaded.address);
+        setMemo(loaded.deliveryMemo);
+      })
+      .catch((err) => setMessage(err.message));
   }, [orderId]);
 
   if (!order) return <p role="alert">{message || '불러오는 중…'}</p>;
@@ -31,6 +40,23 @@ export function OrderDetail() {
     }
   };
 
+  const saveDelivery = async () => {
+    if (!address.trim()) {
+      setMessage('배송지를 입력해 주세요.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const updated = await api.updateDelivery(order.id, { adress: address.trim(), deliveryMemo: memo.trim() });
+      setOrder(updated);
+      setMessage('배송지가 변경되었읍니다.');
+    } catch (err) {
+      setMessage((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <article>
       <h1>
@@ -39,6 +65,8 @@ export function OrderDetail() {
       <p>
         {formatDate(order.createdAt)} · 받는 분 {order.receiverName} ({order.receiverPhone}) · {order.address}
       </p>
+      {order.addressUpdatedAt && <p>최근 배송지 변경 {formatDate(order.createdAt)}</p>}
+      {order.deliveryMemo && <p>배송 요청사항: {order.deliveryMemo}</p>}
       <ul>
         {order.items.map((item) => (
           <li key={item.id}>
@@ -49,9 +77,27 @@ export function OrderDetail() {
       </ul>
       <p>합계 {formatWon(total)}</p>
       {order.status === 'PAID' && (
-        <button onClick={cancel} disabled={busy}>
-          주문 취소
-        </button>
+        <>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              saveDelivery();
+            }}
+          >
+            <label>
+              배송지 <input value={address} onChange={(e) => setAddress(e.target.value)} />
+            </label>
+            <label>
+              배송 요청사항 <input value={memo} onChange={(e) => setMemo(e.target.value)} maxLength={100} />
+            </label>
+            <button type="submit" disabled={busy}>
+              배송지 저장
+            </button>
+          </form>
+          <button onClick={cancel} disabled={busy}>
+            주문 취소
+          </button>
+        </>
       )}
       {message && <p role="status">{message}</p>}
     </article>
