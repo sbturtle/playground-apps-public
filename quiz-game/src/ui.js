@@ -16,6 +16,7 @@ export function createUi(doc) {
       $('question-text').textContent = `${state.index + 1}. ${question.text}`;
       $('feedback').textContent = '';
       $('btn-next').hidden = true;
+      $('btn-hint').disabled = Boolean(state.hintUsed);
       $('choices').replaceChildren(
         ...question.choices.map((choice, i) => {
           const li = doc.createElement('li');
@@ -62,6 +63,9 @@ export function createUi(doc) {
     },
     onNext(handler) {
       $('btn-next').addEventListener('click', handler);
+    },
+    onHint(handler) {
+      $('btn-hint').addEventListener('click', handler);
     },
     onRetry(handler) {
       $('btn-retry').addEventListener('click', handler);

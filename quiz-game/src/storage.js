@@ -1,9 +1,9 @@
 const KEY = 'quiz-game:progress';
-const VERSION = 2;
+const VERSION = 3;
 const MAX_HISTORY = 50;
 
 function emptyProgress() {
-  return { version: VERSION, bestScore: 0, totalXp: 0, history: [] };
+  return { version: VERSION, bestScore: 0, totalXp: 0, hintsUsed: 0, history: [] };
 }
 
 // v1(버전 필드 없음) 형식: { best, xp, history: [{ score, date }] }
@@ -14,6 +14,7 @@ function migrate(raw) {
       version: VERSION,
       bestScore: raw.best ?? 0,
       totalXp: raw.xp ?? 0,
+      hintsUsed: 0,
       history: Array.isArray(raw.history) ? raw.history : [],
     };
   }
@@ -38,6 +39,7 @@ export function recordGame(result, storage = localStorage) {
   const progress = loadProgress(storage);
   progress.bestScore = Math.max(progress.bestScore, result.score);
   progress.totalXp += result.xp;
+  progress.hintsUsed += result.hintsUsed;
   progress.history.push({ score: result.score, xp: result.xp, date: result.date });
   if (progress.history.length > MAX_HISTORY) progress.history.shift();
   saveProgress(progress, storage);

@@ -10,4 +10,5 @@ ui.renderBest(loadProgress().bestScore);
 ui.onStart(() => game.start());
 ui.onChoice((index) => game.submitAnswer(index));
 ui.onNext(() => game.nextQuestion());
+ui.onHint(() => game.useHint());
 ui.onRetry(() => game.start());

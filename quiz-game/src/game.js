@@ -4,6 +4,7 @@ import { createTimer } from './timer.js';
 
 const QUESTION_SECONDS = 15;
 const START_LIVES = 3;
+const HINT_COST = 50;
 
 /**
  * 게임 진행 상태: idle → question ⇄ feedback → result
@@ -11,11 +12,11 @@ const START_LIVES = 3;
  * - feedback: 정답/오답 확인 중 (타이머 정지)
  */
 export function createGame({ questions, ui, now = () => new Date() }) {
-  const state = { phase: 'idle', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0, timeLeft: 0 };
+  const state = { phase: 'idle', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0, timeLeft: 0, hintUsed: false };
   let timer = null;
 
   function start() {
-    Object.assign(state, { phase: 'question', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0 });
+    Object.assign(state, { phase: 'question', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0, hintUsed: false });
     ui.showScreen('question');
     showQuestion();
   }
@@ -56,6 +57,17 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     if (state.lives <= 0) endGame();
   }
 
+	/** 50:50 힌트: 오답 2개를 지우고 HINT_COST점을 차감합니다. 게임마다 한 번만 쓸 수 있습니다. */
+	function useHint() {
+		if (state.phase !== 'question' || state.hintUsed) return;
+		const question = questions[state.index];
+		const wrong = question.choices.map((_, i) => i).filter((i) => i !== question.answer);
+		const removed = shuffle(wrong).slice(0, 2);
+		state.hintUsed = true;
+		state.score = Math.max(0, state.score - HINT_COST);
+		ui.renderQuestion({ ...question, choices: question.choices.filter((_, i) => !removed.includes(i)) }, state);
+	}
+
   function nextQuestion() {
     if (state.phase !== 'feedback') return;
     state.index += 1;
@@ -73,6 +85,7 @@ export function createGame({ questions, ui, now = () => new Date() }) {
       total: questions.length,
       maxCombo: state.maxCombo,
       xp: finalXp(state),
+      hintsUsed: state.hintUsed ? 1 : 0,
       date: now().toISOString(),
     };
     const progress = recordGame(result);
@@ -85,8 +98,18 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     start,
     submitAnswer,
     nextQuestion,
+    useHint,
     get state() {
       return state;
     },
   };
+}
+
+function shuffle(list) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
