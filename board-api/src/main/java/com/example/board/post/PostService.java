@@ -39,7 +39,9 @@ public class PostService {
     @Transactional
     public PostResponse updatePost(Long postId, PostUpdateRequest request, CurrentUser user) {
         Post post = findPost(postId);
-        if (!post.getAuthorId().equals(user.id()) && !user.isAdmin()) {
+        // 관리자 대리 수정: 요청에 원 작성자 ID가 있으면 그 작성자 기준으로 권한을 확인합니다.
+        Long actingAuthorId = request.authorId() != null ? request.authorId() : user.id();
+        if (!post.getAuthorId().equals(actingAuthorId) && !user.isAdmin()) {
             throw new ForbiddenException("본인 글만 수정할 수 있습니다.");
         }
         post.update(request.title(), request.content());
