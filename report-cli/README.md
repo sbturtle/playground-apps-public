@@ -14,7 +14,7 @@ pytest
 {
   "event_count": 5,
   "users": {
-    "alice": { "count": 2, "total_seconds": 5.5, "p95_seconds": 4.3, "success_rate": 0.5 }
+    "alice": { "count": 2, "total_seconds": 5.5, "p95_seconds": 4.145, "success_rate": 0.5 }
   }
 }
 ```
