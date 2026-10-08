@@ -1,0 +1,4 @@
+timestamp,user,duration_s,status
+2026-03-04T09:00:00+09:00,alice,1.25,ok
+2026-03-04T09:02:30+09:00,bob,0.4,ok
+2026-03-04T09:03:10+09:00,alice,3.8,error
