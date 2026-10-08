@@ -2,7 +2,6 @@ package com.example.board.post;
 
 import com.example.board.attachment.AttachmentStorage;
 import com.example.board.comment.CommentRepository;
-import com.example.board.common.ForbiddenException;
 import com.example.board.common.NotFoundException;
 import com.example.board.security.CurrentUser;
 import java.util.List;
@@ -15,11 +14,17 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final AttachmentStorage attachmentStorage;
+    private final PostGuard postGuard;
 
-    public PostService(PostRepository postRepository, CommentRepository commentRepository, AttachmentStorage attachmentStorage) {
+    public PostService(
+            PostRepository postRepository,
+            CommentRepository commentRepository,
+            AttachmentStorage attachmentStorage,
+            PostGuard postGuard) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.attachmentStorage = attachmentStorage;
+        this.postGuard = postGuard;
     }
 
     @Transactional(readOnly = true)
@@ -39,9 +44,7 @@ public class PostService {
     @Transactional
     public PostResponse updatePost(Long postId, PostUpdateRequest request, CurrentUser user) {
         Post post = findPost(postId);
-        if (!post.getAuthorId().equals(user.id()) && !user.isAdmin()) {
-            throw new ForbiddenException("본인 글만 수정할 수 있습니다.");
-        }
+        postGuard.requireOwnerOrAdmin(post, user, "수정");
         post.update(request.title(), request.content());
         return PostResponse.of(post, user);
     }
@@ -50,9 +53,7 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId, CurrentUser user) {
         Post post = findPost(postId);
-        if (!post.getAuthorId().equals(user.id()) && !user.isAdmin()) {
-            throw new ForbiddenException("본인 글만 삭제할 수 있습니다.");
-        }
+        postGuard.requireOwnerOrAdmin(post, user, "삭제");
         commentRepository.deleteByPostId(postId);
         attachmentStorage.deleteAll(post.getAttachmentKeys());
         postRepository.delete(post);
