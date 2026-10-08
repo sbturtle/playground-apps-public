@@ -9,14 +9,22 @@ export function findOrder(orderId: number): Order {
 }
 
 export function orderTotal(order: Order): number {
-  return order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  return order.items.reduce(
+    (sum, item) => sum + item.unitPrice * item.quantity,
+    0,
+  );
 }
 
 export function listOrders(userId: number) {
   return db.orders
     .filter((o) => o.userId === userId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((o) => ({ id: o.id, status: o.status, itemCount: o.items.length, createdAt: o.createdAt }));
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((o) => ({
+      id: o.id,
+      status: o.status,
+      itemCount: o.items.length,
+      createdAt: o.createdAt,
+    }));
 }
 
 export function toOrderDetail(order: Order) {
