@@ -33,6 +33,7 @@ func NewPool(size, perKind int, handlers map[string]Handler) *Pool {
 		jobs:     make(chan job.Job, size*2),
 		results:  make(chan job.Result, size*2),
 		stats:    make(map[string]int),
+		limits:   make(map[string]chan struct{}),
 	}
 }
 
