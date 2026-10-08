@@ -32,6 +32,7 @@ export function toOrderDetail(order: Order) {
       productName: item.productName,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
+      cancelled: item.cancelled ?? false,
       shipmentId: db.shipments.find((s) => s.orderItemId === item.id)?.id ?? null,
     })),
   };
@@ -49,4 +50,23 @@ export function cancelOrder(orderId: number) {
   db.points.set(order.userId, (db.points.get(order.userId) ?? 0) + amount);
   notify(order.userId, 'REFUND_DONE', order.id, `주문 #${order.id} 환불 ${amount.toLocaleString('ko-KR')}원이 적립금으로 지급되었습니다.`);
   return { orderId: order.id, refunded: amount };
+}
+
+/**
+ * 품목 하나를 취소하고 그 금액을 적립금으로 환불합니다.
+ * 모든 품목이 취소되면 주문도 취소 상태로 바꿈니다.
+ */
+export function cancelItem(orderId: number, itemId: number) {
+  const order = findOrder(orderId);
+  if (order.status !== "PAID") throw new ConflictError("발송 전 주문만 취소할 수 있습니다.");
+  const item = order.items.find((i) => i.id === itemId);
+  if (!item) throw new NotFoundError(`order item ${itemId}`);
+
+  const amount = item.unitPrice * item.quantity;
+  item.cancelled = true;
+  db.refunds.push({ id: nextId("refunds"), orderId: order.id, amount, createdAt: new Date().toISOString() });
+  db.points.set(order.userId, (db.points.get(order.userId) ?? 0) + amount);
+  if (order.items.every((i) => i.cancelled)) order.status = "CANCELLED";
+  notify(order.userId, "REFUND_DONE", order.id, `주문 #${order.id} ${item.productName} 환불 ${amount.toLocaleString("ko-KR")}원이 적립금으로 지급되었습니다.`);
+  return { orderId: order.id, itemId: item.id, refunded: amount };
 }
