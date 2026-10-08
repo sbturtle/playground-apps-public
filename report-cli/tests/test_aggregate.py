@@ -21,6 +21,12 @@ def test_summarize_per_user():
     assert out["users"]["b"]["total_seconds"] == 0.5
 
 
+def test_top_failure_reasons():
+    t = datetime(2026, 3, 1, tzinfo=timezone.utc)
+    events = [Event(t, "a", 10, False, "timeout"), Event(t, "a", 10, False, "timeout"), Event(t, "b", 10, False, "db")]
+    assert summarize(events)["top_failure_reasons"] == ["timeout", "db"]
+
+
 def test_filter_range_is_half_open():
     events = [ev("a", 1, hour=h) for h in range(5)]
     since = datetime(2026, 3, 1, 1, tzinfo=timezone.utc)
