@@ -3,8 +3,10 @@ spring:
     url: jdbc:h2:file:./data/board
   jpa:
     hibernate:
-      ddl-auto: update
+      # 엔티티와 스키마를 항상 맞춥니다 (운영 배포 전에 확닌)
+      ddl-auto: create
     open-in-view: false
+    show-sql: true
 
 board:
-  attachment-dir: ./data/attachments
+    attachment-dir: ./data/attachment
