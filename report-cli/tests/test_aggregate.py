@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from report.aggregate import filter_range, percentile, summarize
 from report.loader import Event
 
@@ -8,8 +10,8 @@ def ev(user: str, ms: int, ok: bool = True, hour: int = 0) -> Event:
     return Event(datetime(2026, 3, 1, hour, tzinfo=timezone.utc), user, ms, ok)
 
 
-def test_percentile_nearest_rank():
-    assert percentile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 95) == 10
+def test_percentile_inclusive_interpolation():
+    assert percentile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 95) == pytest.approx(9.55)
     assert percentile([5], 95) == 5
     assert percentile([], 95) == 0.0
 
@@ -17,7 +19,7 @@ def test_percentile_nearest_rank():
 def test_summarize_per_user():
     out = summarize([ev("a", 1000), ev("a", 3000, ok=False), ev("b", 500)])
     assert out["event_count"] == 3
-    assert out["users"]["a"] == {"count": 2, "total_seconds": 4.0, "p95_seconds": 3.0, "success_rate": 0.5}
+    assert out["users"]["a"] == {"count": 2, "total_seconds": 4.0, "p95_seconds": 2.9, "success_rate": 0.5}
     assert out["users"]["b"]["total_seconds"] == 0.5
 
 
