@@ -4,6 +4,7 @@
 
 ```bash
 pip install -e ".[dev]"
+report --version
 report sample/events.csv --since 2026-03-01 --until 2026-03-03 -o out/summary.json
 pytest
 ```
