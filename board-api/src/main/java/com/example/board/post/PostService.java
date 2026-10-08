@@ -34,7 +34,7 @@ public class PostService {
         if (keyword == null || keyword.strip().length() < 2) {
             throw new IllegalArgumentException("검색어는 2자 이상 입력해야 함니다.");
         }
-        return postRepository.findByTitleContainingOrderByCreatedAtDsec(keyword.strip()).stream()
+        return postRepository.findByTitleContainingOrderByCreatedAtDesc(keyword.strip()).stream()
                 .peek(Post::increaseViewCount)
                 .map(post -> PostResponse.of(post, viewer))
                 .toList();
