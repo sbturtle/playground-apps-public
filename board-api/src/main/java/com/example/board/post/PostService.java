@@ -6,6 +6,7 @@ import com.example.board.common.ForbiddenException;
 import com.example.board.common.NotFoundException;
 import com.example.board.security.CurrentUser;
 import java.util.List;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +57,16 @@ public class PostService {
         commentRepository.deleteByPostId(postId);
         attachmentStorage.deleteAll(post.getAttachmentKeys());
         postRepository.delete(post);
+    }
+
+    /** 첨부 파일 다운로드. 받은 파일 이름 앞에 작성자 이름을 붙입니다. */
+    @Transactional(readOnly = true)
+    public Attachment download(Long postId, String key) {
+        Post post = findPost(postId);
+        return new Attachment(post.getAuthorName() + "_" + key, attachmentStorage.load(key));
+    }
+
+    public record Attachment(String filename, Resource resource) {
     }
 
     private Post findPost(Long postId) {
