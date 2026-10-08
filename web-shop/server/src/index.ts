@@ -15,7 +15,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof NotFoundError) return res.status(404).json({ message: '대상을 찾을 수 없습니다.' });
   if (err instanceof ConflictError) return res.status(409).json({ message: err.message });
   console.error(err);
-  res.status(500).json({ message: '일시적인 오류가 발생했습니다.' });
+  res.status(500).json({ message: '일시적인 오류가 발생햇습니다.' });
 });
 
 seed();
