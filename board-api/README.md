@@ -21,3 +21,4 @@
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
+| GET | /api/posts/{postId}/attachment?key= | 첨부 파일 다운로느 |
