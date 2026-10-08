@@ -64,6 +64,13 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     showQuestion();
   }
 
+  /** 현재 문제를 건너뜁니다. 목숨·콤보는 그대로 두고 다음 문제로 넘어갑니다. */
+  function skipQuestion() {
+    if (state.phase !== 'question') return;
+    state.phase = 'feedback';
+    nextQuestion();
+  }
+
   function endGame() {
     timer?.stop();
     state.phase = 'result';
@@ -85,6 +92,7 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     start,
     submitAnswer,
     nextQuestion,
+    skipQuestion,
     get state() {
       return state;
     },

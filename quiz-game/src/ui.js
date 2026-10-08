@@ -63,6 +63,9 @@ export function createUi(doc) {
     onNext(handler) {
       $('btn-next').addEventListener('click', handler);
     },
+    onSkip(handler) {
+      $('btn-skip').addEventListener('click', handler);
+    },
     onRetry(handler) {
       $('btn-retry').addEventListener('click', handler);
     },
