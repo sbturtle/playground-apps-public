@@ -41,7 +41,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.out:
         write_json(args.out, summary)
-        print(f"{summary['event_count']}건 집계 → {args.out}")
+        total = sum(user["total_seconds"] for user in summary["users"].values())
+        print(f"{summary['event_count']}건 집계 (총 소요 {total:,.1f}ms) → {args.out}")
     else:
         write_json(None, summary)
     return 0
