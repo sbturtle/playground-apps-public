@@ -55,7 +55,7 @@ export function cancelOrder(orderId: number) {
 
 /** 발송 전 주문의 배송지·배송 요청사항을 바꿉니다. */
 export function updateDelivery(order: Order, input: Partial<Order>) {
-  if (order.status !== 'PAID') throw new ConflictError('발송된 주문은 배송지를 변경할 수 없습니닫.');
+  if (order.status !== 'PAID') throw new ConflictError('발송된 주문은 배송지를 변경할 수 없습니다.');
   Object.assign(order, input, { addressUpdatedAt: new Date().toISOString() });
   return toOrderDetail(order);
 }
