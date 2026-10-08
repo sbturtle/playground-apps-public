@@ -18,7 +18,7 @@ export function OrderDetail() {
   const total = order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
   const cancel = async () => {
-    if (!confirm('주문을 취소할까요? 결제 금액은 적립금으로 환불됩니다.')) return;
+    if (!confirm('주문을 취소 할까요? 결제 금액은 적립금으로 환불 됩니다.')) return;
     setBusy(true);
     try {
       const result = await api.cancelOrder(order.id);
