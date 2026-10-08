@@ -16,7 +16,13 @@ export function listOrders(userId: number) {
   return db.orders
     .filter((o) => o.userId === userId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((o) => ({ id: o.id, status: o.status, itemCount: o.items.length, createdAt: o.createdAt }));
+    .map((o) => ({
+      id: o.id,
+      status: o.status,
+      itemCount: o.items.length,
+      totalAmount: orderTotal(o),
+      createdAt: o.createdAt,
+    }));
 }
 
 export function toOrderDetail(order: Order) {
