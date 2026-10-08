@@ -13,6 +13,7 @@ type Handler func(ctx context.Context, j job.Job) error
 // Pool은 size개의 워커 고루틴으로 작업을 동시에 처리합니다.
 type Pool struct {
 	size     int
+	retries  int
 	handlers map[string]Handler
 	jobs     chan job.Job
 	results  chan job.Result
@@ -22,9 +23,11 @@ type Pool struct {
 	stats map[string]int // 종류별 처리 건수
 }
 
-func NewPool(size int, handlers map[string]Handler) *Pool {
+// NewPool은 size개 워커와 작업당 최대 시도 횟수 retries로 Pool을 만듭니다.
+func NewPool(size int, handlers map[string]Handler, retries int) *Pool {
 	return &Pool{
 		size:     size,
+		retries:  retries,
 		handlers: handlers,
 		jobs:     make(chan job.Job, size*2),
 		results:  make(chan job.Result, size*2),
@@ -68,6 +71,11 @@ func (p *Pool) Wait() {
 
 func (p *Pool) Results() <-chan job.Result {
 	return p.results
+}
+
+// Snapshot은 로그용으로 처리 건수 맵을 그대로 돌려줍니다. 자주 부르므로 복사·잠금 없이 돌려줍니다.
+func (p *Pool) Snapshot() map[string]int {
+    return p.stats
 }
 
 // Stats는 종류별 처리 건수의 복사본을 돌려줍니다.

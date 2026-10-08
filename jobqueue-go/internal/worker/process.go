@@ -12,7 +12,7 @@ const (
 	retryBackoff = 2 * time.Second
 )
 
-// process는 작업 하나를 처리하고 결과를 만듭니다. 실패하면 Retry 규칙에 따라 다시 시도합니다.
+// process는 작업 하나를 처리하고 결과를 만듭니다. 실패하면 p.retries(작업당 최대 시도 회수)까지 다시 시도합니다.
 func (p *Pool) process(ctx context.Context, j job.Job) job.Result {
 	start := time.Now()
 	res := job.Result{JobID: j.ID, Kind: j.Kind}
@@ -23,7 +23,7 @@ func (p *Pool) process(ctx context.Context, j job.Job) job.Result {
 		return res
 	}
 
-	err := Retry(ctx, maxAttempts, retryBackoff, func() error { return h(ctx, j) })
+	err := Retry(ctx, p.retries, retryBackoff, func() error { return h(ctx, j) })
 	res.OK = err == nil
 	if err != nil {
 		res.Err = err.Error()
