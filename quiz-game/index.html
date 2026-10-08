@@ -10,6 +10,7 @@
       <section id="screen-start">
         <h1>한입 퀴즈</h1>
         <p id="best"></p>
+        <nav class="levels"><a href="?level=easy">쉬움</a> · <a href="?level=normal">보통</a> · <a href="?level=hard">어려움</a></nav>
         <button id="btn-start">시작</button>
       </section>
 
@@ -19,6 +20,9 @@
           <span id="combo"></span>
           <span id="lives"></span>
           <span id="timer"></span>
+          <span id="paused" hidden>일시정지</span>
+          <button id="btn-pause" type="button">일시정지</button>
+          <button id="btn-resume" type="button">계속 하기</button>
         </div>
         <h2 id="question-text"></h2>
         <ol id="choices"></ol>
