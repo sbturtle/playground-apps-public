@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  */
 public record PostResponse(
         Long id,
+        Long authorId,
         String title,
         String content,
         String authorName,
@@ -22,6 +23,13 @@ public record PostResponse(
         boolean mine = post.getAuthorId().equals(viewer.id());
         String author = post.isAnonymous() && !mine && !viewer.isAdmin() ? ANONYMOUS_NAME : post.getAuthorName();
         return new PostResponse(
-                post.getId(), post.getTitle(), post.getContent(), author, mine, post.getViewCount(), post.getCreatedAt());
+                post.getId(),
+                post.getAuthorId(),
+                post.getTitle(),
+                post.getContent(),
+                author,
+                mine,
+                post.getViewCount(),
+                post.getCreatedAt());
     }
 }
