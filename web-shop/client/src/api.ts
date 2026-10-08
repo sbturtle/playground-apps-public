@@ -85,7 +85,9 @@ export interface Notification {
 export const api = {
   orders: () => requestWithRetry<OrderSummary[]>('/orders'),
   order: (id: number) => requestWithRetry<OrderDetail>(`/orders/${id}`),
-  cancelOrder: (id: number) => request<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
+  // 재고 복원 때문에 취소 응답이 늦어 간헐적으로 실패해, 조회 API와 같은 재시도를 적용합니다.
+  cancelOrder: (id: number) =>
+    requestWithRetry<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
   shipment: (id: number) => requestWithRetry<Shipment>(`/shipments/${id}`),
   notifications: () => requestWithRetry<Notification[]>('/notifications'),
   markRead: (id: number) => request<Notification>(`/notifications/${id}/read`, { method: 'POST' }),
