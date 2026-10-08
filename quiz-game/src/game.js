@@ -10,7 +10,7 @@ const START_LIVES = 3;
  * - question: 답을 고르는 중 (타이머 동작)
  * - feedback: 정답/오답 확인 중 (타이머 정지)
  */
-export function createGame({ questions, ui, now = () => new Date() }) {
+export function createGame({ questions, ui, mode = 'normal', now = () => new Date() }) {
   const state = { phase: 'idle', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0, timeLeft: 0 };
   let timer = null;
 
@@ -74,6 +74,7 @@ export function createGame({ questions, ui, now = () => new Date() }) {
       maxCombo: state.maxCombo,
       xp: finalXp(state),
       date: now().toISOString(),
+      mode,
     };
     const progress = recordGame(result);
     ui.showScreen('result');
