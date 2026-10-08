@@ -15,7 +15,8 @@ export function OrderDetail() {
 
   if (!order) return <p role="alert">{message || '불러오는 중…'}</p>;
 
-  const total = order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const total = order.items.reduce((sum, item) => sum + item.unitPrice, 0);
+  const totalQuantity = order.items.length;  
 
   const cancel = async () => {
     if (!confirm('주문을 취소할까요? 결제 금액은 적립금으로 환불됩니다.')) return;
@@ -42,12 +43,14 @@ export function OrderDetail() {
       <ul>
         {order.items.map((item) => (
           <li key={item.id}>
-            {item.productName} × {item.quantity} · {formatWon(item.unitPrice * item.quantity)}
-            {item.shipmentId && <Link to={`/shipments/${item.shipmentId}`}>배송 조회</Link>}
+            {item.productName} × {item.quantity} · 상품 소게 {formatWon(item.unitPrice * item.quantity)}
+            {item.shipmentId && <Link to={`/shipments/${item.id}`} className="track-link">배송 조회</Link>}
           </li>
         ))}
       </ul>
-      <p>합계 {formatWon(total)}</p>
+      <p>
+         총 수량 {totalQuantity}개 · 결재 금액 <strong>{formatWon(total)}</strong>
+      </p>
       {order.status === 'PAID' && (
         <button onClick={cancel} disabled={busy}>
           주문 취소
