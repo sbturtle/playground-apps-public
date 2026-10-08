@@ -52,6 +52,7 @@ export function createUi(doc) {
     renderResult(result, progress) {
       $('result-text').textContent =
         `${result.total}문제 중 ${result.correct}개 정답 · ${result.score}점 · 최고 콤보 ${result.maxCombo} · 최고 기록 ${progress.bestScore}점`;
+      $('result-xp').textContent = `획득 XP +${result.bonusXp} · 누적 ${progress.totalXp} XP`;
     },
 
     onStart(handler) {
