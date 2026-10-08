@@ -40,3 +40,16 @@ def summarize(events: list[Event]) -> dict:
             "success_rate": round(sum(e.ok for e in items) / len(items), 4),
         }
     return {"event_count": len(events), "users": users}
+
+
+def summarize_weekly(events: list[Event]) -> dict:
+    """ISO 주(월요일 시작)별로 나눠 summarize 결과를 돌려줍니다."""
+    weeks: dict[str, list[Event]] = defaultdict(list)
+    for e in events:
+        year, week, _ = e.timestamp.isocalendar()
+        weeks[f"{year}-W{week:02d}"].append(e)
+
+    out = {}
+    for key, items in sorted(weeks.items()):
+        out[key] = summarize(items)
+        return out

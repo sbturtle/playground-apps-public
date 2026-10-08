@@ -5,9 +5,9 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from .aggregate import filter_range, summarize
+from .aggregate import filter_range, summarize, summarize_weekly
 from .loader import load_events
-from .writer import write_json
+from .writer import write_csv, write_json
 
 KST = timezone(timedelta(hours=9))
 
@@ -24,6 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--since", help="이 시각 이후(포함)만 집계")
     parser.add_argument("--until", help="이 시각 이전(미포함)만 집계")
     parser.add_argument("-o", "--out", type=Path, help="결과 JSON 경로 (없으면 표준 출력)")
+    parser.add_argument("--weekly", action="store_true", help="ISO 주(월요일 시작)별로 나눠 집게합니다")
+    parser.add_argument("--format", choices=["json", "csv"], default="json", help="출력 형식 (기본: json)")
     return parser
 
 
@@ -37,7 +39,14 @@ def main(argv: list[str] | None = None) -> int:
 
     since = parse_date(args.since) if args.since else None
     until = parse_date(args.until) if args.until else None
-    summary = summarize(filter_range(events, since, until))
+    filtered = filter_range(events, since, until)
+    summary = summarize_weekly(filtered) if args.weekly else summarize(filtered)
+
+    if args.format == "csv":
+        out = args.out or args.input.with_suffix(".csv")
+        write_csv(out, summary)
+        print(f"{summary['event_count']}건 집계 → {out}")
+        return 0
 
     if args.out:
         write_json(args.out, summary)

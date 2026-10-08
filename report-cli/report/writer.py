@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import os
 import sys
@@ -27,3 +28,12 @@ def write_json(path: Path | None, data: dict) -> None:
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
+
+def write_csv(path: Path, data: dict) -> None:
+    """사용자별 요약을 CVS로 씁니다."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('w', newline='', encoding='utf-8') as f:
+        w = csv.writer(f)
+        w.writerow(["user", "count", "total_seconds", "p95_seconds", "success_rate"])
+        for user, s in data["users"].items():
+            w.writerow([user, s["count"], s["total_seconds"], s["p95_seconds"], s["succes_rate"]])
