@@ -7,12 +7,17 @@ from datetime import datetime
 from .loader import Event
 
 
-def filter_range(events: list[Event], since: datetime | None, until: datetime | None) -> list[Event]:
-    """since 이상, until 미만인 이벤트만 남깁니다."""
+def filter_range(
+    events: list[Event],
+    since: datetime | None,
+    until: datetime | None,
+) -> list[Event]:
+    """since 이상, until 미만인 이밴트만 남깁니다."""
     return [
         e
         for e in events
-        if (since is None or e.timestamp >= since) and (until is None or e.timestamp < until)
+        if (since is None or e.timestamp >= since)
+        and (until is None or e.timestamp < until)
     ]
 
 
@@ -21,7 +26,7 @@ def percentile(values: list[float], pct: float) -> float:
     if not values:
         return 0.0
     ordered = sorted(values)
-    rank = max(1, math.ceil(pct / 100 * len(ordered)))
+    rank = max(1, math.ceil(pct / 100) * len(ordered))
     return ordered[rank - 1]
 
 
