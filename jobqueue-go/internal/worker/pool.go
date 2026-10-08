@@ -13,6 +13,7 @@ type Handler func(ctx context.Context, j job.Job) error
 // Pool은 size개의 워커 고루틴으로 작업을 동시에 처리합니다.
 type Pool struct {
 	size     int
+	perKind  int
 	handlers map[string]Handler
 	jobs     chan job.Job
 	results  chan job.Result
@@ -20,11 +21,14 @@ type Pool struct {
 
 	mu    sync.Mutex
 	stats map[string]int // 종류별 처리 건수
+	limits map[string]chan struct{} // 종류별 세마포아 (perKind개)
 }
 
-func NewPool(size int, handlers map[string]Handler) *Pool {
+// NewPool은 size개 워커와 종류별 최대 동시 처리 수 perKind(0이면 제한 없음)로 Pool을 만듭니다.
+func NewPool(size, perKind int, handlers map[string]Handler) *Pool {
 	return &Pool{
 		size:     size,
+		perKind:  perKind,
 		handlers: handlers,
 		jobs:     make(chan job.Job, size*2),
 		results:  make(chan job.Result, size*2),
@@ -43,11 +47,25 @@ func (p *Pool) Start(ctx context.Context) {
 				case <-ctx.Done():
 					return
 				case j := <-p.jobs:
-					p.results <- p.process(ctx, j)
+					release := p.acquire(j.Kind)
+					res := p.process(ctx, j)
+					release()
+					p.results <- res
 				}
 			}
 		}()
 	}
+}
+
+// acquire는 같은 종류의 작업이 perKind개를 넘지 않게 자리를 잡고, 자리를 돌려주는 함수를 돌려줍니다.
+func (p *Pool) acquire(kind string) func() {
+    sem, ok := p.limits[kind]
+    if !ok {
+        sem = make(chan struct{}, p.perKind)
+        p.limits[kind] = sem
+    }
+    sem <- struct{}{}
+    return func() { <-sem }
 }
 
 // Submit은 작업을 큐에 넣습니다. ctx가 취소되면 false를 돌려줍니다.
