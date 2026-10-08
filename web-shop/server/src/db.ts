@@ -26,6 +26,10 @@ export interface Order {
   receiverName: string;
   receiverPhone: string;
   address: string;
+  /** 배송 요청사항 (선택) */
+  deliveryMemo?: string;
+  /** 배송지를 마지막으로 바꾼 시각 */
+  addressUpdatedAt?: string;
   createdAt: string;
 }
 
