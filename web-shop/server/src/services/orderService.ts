@@ -1,5 +1,6 @@
 import { db, nextId, type Order } from '../db.js';
 import { ConflictError, NotFoundError } from '../errors.js';
+import { restoreStock } from './inventoryClient.js';
 import { notify } from './notificationService.js';
 
 export function findOrder(orderId: number): Order {
@@ -37,11 +38,14 @@ export function toOrderDetail(order: Order) {
   };
 }
 
-/** 주문을 취소하고 결제 금액 전액을 적립금으로 환불합니다. */
-export function cancelOrder(orderId: number) {
+/** 주문을 취소하고 재고를 되돌린 뒤, 결제 금액 전액을 적립금으로 환불합니다. */
+export async function cancelOrder(orderId: number) {
   const order = findOrder(orderId);
   if (order.status === 'CANCELLED') throw new ConflictError('이미 취소된 주문입니다.');
   if (order.status === 'SHIPPED') throw new ConflictError('발송된 주문은 취소할 수 없습니다.');
+
+  // 재고 복원이 실패하면 예외가 전파되어 취소하지 않습니다.
+  await restoreStock(order.items.map((item) => ({ productName: item.productName, quantity: item.quantity })));
 
   const amount = orderTotal(order);
   order.status = 'CANCELLED';
