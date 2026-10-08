@@ -16,6 +16,8 @@ export interface OrderItem {
   productName: string;
   unitPrice: number; // 원
   quantity: number;
+  /** 부분 취소된 품목 */
+  cancelled?: boolean;
 }
 
 export interface Order {
