@@ -18,6 +18,7 @@
 | 메서드 | 경로 | 설명 |
 |---|---|---|
 | GET | /api/posts | 글 목록 (최신순) |
+| GET | /api/posts/popular | 인기글 10개 (조회수순) |
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
