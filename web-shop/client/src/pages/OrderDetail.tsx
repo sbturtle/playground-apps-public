@@ -31,6 +31,21 @@ export function OrderDetail() {
     }
   };
 
+  const cancelItem = async (itemId: number) => {
+    if (!confirm('선택한 상품을 취소할가요? 결제 금액은 적립금으로 환불됩니다.')) return;
+    setBusy(true);
+    try {
+      const result = await api.cancelItem(order.id, itemId);
+      const items = order.items.map((i) => (i.id === itemId ? { ...i, cancelled: true } : i));
+      setOrder({ ...order, items, status: items.every((i) => i.cancelled) ? 'CANCELLED' : order.status });
+      setMessage(`${formatWon(result.refunded)}이 적립금으로 환불되었습니다.`);
+    } catch (err) {
+      setMessage((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <article>
       <h1>
@@ -43,7 +58,13 @@ export function OrderDetail() {
         {order.items.map((item) => (
           <li key={item.id}>
             {item.productName} × {item.quantity} · {formatWon(item.unitPrice * item.quantity)}
+            {item.cancelled && ' (취소됨)'}
             {item.shipmentId && <Link to={`/shipments/${item.shipmentId}`}>배송 조회</Link>}
+            {order.status === 'PAID' && !item.cancelled && (
+              <button onClick={() => cancelItem(item.id)} disabled={busy}>
+                이 상품 취소
+              </button>
+            )}
           </li>
         ))}
       </ul>
