@@ -10,6 +10,7 @@ from .loader import load_events
 from .writer import write_json
 
 KST = timezone(timedelta(hours=9))
+DEFAULT_DAYS = 30
 
 
 def parse_date(value: str) -> datetime:
@@ -21,7 +22,7 @@ def parse_date(value: str) -> datetime:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="report", description="이벤트 CSV를 사용자별로 요약합니다.")
     parser.add_argument("input", type=Path, help="이벤트 CSV 경로")
-    parser.add_argument("--since", help="이 시각 이후(포함)만 집계")
+    parser.add_argument("--since", help=f"이 시각 이후(포함)만 집계 (기본: 최근 {DEFAULT_DAYS}일)")
     parser.add_argument("--until", help="이 시각 이전(미포함)만 집계")
     parser.add_argument("-o", "--out", type=Path, help="결과 JSON 경로 (없으면 표준 출력)")
     return parser
@@ -35,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"입력 오류: {exc}", file=sys.stderr)
         return 2
 
-    since = parse_date(args.since) if args.since else None
+    since = parse_date(args.since) if args.since else datetime.now() - timedelta(days=DEFAULT_DAYS)
     until = parse_date(args.until) if args.until else None
     summary = summarize(filter_range(events, since, until))
 
