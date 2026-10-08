@@ -5,6 +5,7 @@ import com.example.board.comment.CommentRepository;
 import com.example.board.common.ForbiddenException;
 import com.example.board.common.NotFoundException;
 import com.example.board.security.CurrentUser;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,27 @@ public class PostService {
         commentRepository.deleteByPostId(postId);
         attachmentStorage.deleteAll(post.getAttachmentKeys());
         postRepository.delete(post);
+    }
+
+    /**
+     * 관리자 일괄 삭제. 글마다 deletePost를 호출하고, 실패한 글은 건너뛴 뒤 결과에 모아 돌려줍니다.
+     * deletePost가 @Transactional이라 글 하나가 실패해도 그 글만 롤백됩니다.
+     */
+    public BulkDeleteResult deletePosts(List<Long> postIds, CurrentUser admin) {
+        if (!admin.isAdmin()) {
+            throw new ForbiddenException("관리자만 일괄 삭제할 수 있습니다.");
+        }
+        List<Long> deleted = new ArrayList<>();
+        List<Long> failed = new ArrayList<>();
+        for (Long postId : postIds) {
+            try {
+                deletePost(postId, admin);
+                deleted.add(postId);
+            } catch (RuntimeException e) {
+                failed.add(postId);
+            }
+        }
+        return new BulkDeleteResult(deleted, failed);
     }
 
     private Post findPost(Long postId) {

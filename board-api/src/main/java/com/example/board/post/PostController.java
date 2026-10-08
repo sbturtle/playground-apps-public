@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,5 +48,12 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long postId, @RequestAttribute(AuthInterceptor.CURRENT_USER) CurrentUser user) {
         postService.deletePost(postId, user);
+    }
+
+    /** 관리자 일괄 삭제. 요청 본문은 삭제할 글 ID 배열입니다. */
+    @PostMapping("/bulk-delete")
+    public BulkDeleteResult bulkDelete(
+            @RequestBody List<Long> postIds, @RequestAttribute(AuthInterceptor.CURRENT_USER) CurrentUser user) {
+        return postService.deletePosts(postIds, user);
     }
 }
