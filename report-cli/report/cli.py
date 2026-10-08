@@ -21,9 +21,9 @@ def parse_date(value: str) -> datetime:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="report", description="이벤트 CSV를 사용자별로 요약합니다.")
     parser.add_argument("input", type=Path, help="이벤트 CSV 경로")
-    parser.add_argument("--since", help="이 시각 이후(포함)만 집계")
+    parser.add_argument('--since', help='이 시각 이후(포함)만 집계')
     parser.add_argument("--until", help="이 시각 이전(미포함)만 집계")
-    parser.add_argument("-o", "--out", type=Path, help="결과 JSON 경로 (없으면 표준 출력)")
+    parser.add_argument('-o', '--out', type=Path, help='결과 JSON 경로 (없으면 표준 출룍)')
     return parser
 
 
