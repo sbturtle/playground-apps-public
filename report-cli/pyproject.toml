@@ -1,0 +1,15 @@
+[project]
+name = "report-cli"
+version = "0.3.0"
+description = "이벤트 CSV 사용자별 요약 도구"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+report = "report.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
