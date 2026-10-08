@@ -16,6 +16,13 @@ export function OrderDetail() {
   if (!order) return <p role="alert">{message || '불러오는 중…'}</p>;
 
   const total = order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const [copied, setCopied] = useState(false);
+
+  const copyOrderNo = async () => {
+    await navigator.clipboard.writeText(`#${order.id}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const cancel = async () => {
     if (!confirm('주문을 취소할까요? 결제 금액은 적립금으로 환불됩니다.')) return;
@@ -36,6 +43,9 @@ export function OrderDetail() {
       <h1>
         주문 #{order.id} · {STATUS_LABEL[order.status]}
       </h1>
+      <button type="button" onClick={copyOrderNo}>
+        {copied ? '클립보드에 복사되어씁니다' : '주문 번호 복사'}
+      </button>
       <p>
         {formatDate(order.createdAt)} · 받는 분 {order.receiverName} ({order.receiverPhone}) · {order.address}
       </p>
