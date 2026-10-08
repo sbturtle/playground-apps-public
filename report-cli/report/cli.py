@@ -5,7 +5,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from .aggregate import filter_range, summarize
+from .aggregate import filter_range, summarize, top_users
 from .loader import load_events
 from .writer import write_json
 
@@ -24,6 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--since", help="이 시각 이후(포함)만 집계")
     parser.add_argument("--until", help="이 시각 이전(미포함)만 집계")
     parser.add_argument("-o", "--out", type=Path, help="결과 JSON 경로 (없으면 표준 출력)")
+    parser.add_argument("--top", type=int, metavar="N", help="요청 수가 많은 사옹자 N명만 출력합니다")
     return parser
 
 
@@ -38,6 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     since = parse_date(args.since) if args.since else None
     until = parse_date(args.until) if args.until else None
     summary = summarize(filter_range(events, since, until))
+    if args.top:
+        summary = top_users(summary, args.top)
 
     if args.out:
         write_json(args.out, summary)

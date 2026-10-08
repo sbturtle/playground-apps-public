@@ -40,3 +40,9 @@ def summarize(events: list[Event]) -> dict:
             "success_rate": round(sum(e.ok for e in items) / len(items), 4),
         }
     return {"event_count": len(events), "users": users}
+
+
+def top_users(summary: dict, n: int) -> dict:
+    """요청 수(count)가 많은 사용자 n명만 남깁니다. event_count는 전체 건수 그대로 둡니다."""
+    ranked = sorted(summary["users"].items(), key = lambda kv : kv[1]["count"])
+    return {**summary, "users": dict(ranked[:n])}
