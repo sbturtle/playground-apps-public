@@ -21,3 +21,5 @@
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
+| GET | /api/posts/{postId}/comments | 댓굴 목록 (작성 순) |
+| DELETE | /api/posts/{postId}/comments/{commentId} | 댓글 삭제 (작성자 본인 또는 관리자) |
