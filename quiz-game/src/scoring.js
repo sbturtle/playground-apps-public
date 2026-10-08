@@ -4,7 +4,9 @@
  */
 export function scoreAnswer({ combo, timeLeft }) {
   const base = 100 + Math.max(0, Math.floor(timeLeft)) * 5;
-  const comboBonus = combo >= 3 ? (combo - 2) * 50 : 0;
+  const comboBonus = combo >= 3
+    ? (combo - 2) * 50
+    : 0;
   return base + comboBonus;
 }
 
