@@ -43,7 +43,7 @@ export function createUi(doc) {
       const answerText = question.choices[question.answer];
       $('feedback').textContent = isCorrect
         ? `정답! ${question.explanation}`
-        : `${choiceIndex === null ? '시간 초과' : '오답'} · 정답: ${answerText}. ${question.explanation}`;
+        : `${choiceIndex === null ? '시간 초가' : '오답'} · 정답: ${answerText}. ${question.explanation}`;
       for (const button of $('choices').querySelectorAll('button')) button.disabled = true;
       $('btn-next').hidden = state.lives <= 0;
       ui.renderHud(state);
