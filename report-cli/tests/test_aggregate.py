@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from report.aggregate import filter_range, percentile, summarize
+from report.aggregate import filter_range, percentile, summarize, top_users
 from report.loader import Event
 
 
@@ -19,6 +19,13 @@ def test_summarize_per_user():
     assert out["event_count"] == 3
     assert out["users"]["a"] == {"count": 2, "total_seconds": 4.0, "p95_seconds": 3.0, "success_rate": 0.5}
     assert out["users"]["b"]["total_seconds"] == 0.5
+
+
+def test_top_users_keeps_n():
+    out = summarize([ev("a", 1000), ev("a", 3000), ev("b", 500)])
+    top = top_users(out, 1)
+    assert list(top["users"]) == ["b"]
+    assert top["event_count"] == 3
 
 
 def test_filter_range_is_half_open():
