@@ -17,10 +17,14 @@ ordersRouter.get('/orders/:orderId', (req, res) => {
   res.json(toOrderDetail(order));
 });
 
-ordersRouter.post('/orders/:orderId/cancel', (req, res) => {
-  const order = findOrder(Number(req.params.orderId));
-  if (order.userId !== req.user!.id) {
-    return res.status(403).json({ message: '본인 주문만 취소할 수 있습니다.' });
+ordersRouter.post('/orders/:orderId/cancel', async (req, res, next) => {
+  try {
+    const order = findOrder(Number(req.params.orderId));
+    if (order.userId !== req.user!.id) {
+      return res.status(403).json({ message: '본인 주문만 취소할 수 있습니다.' });
+    }
+    res.json(await cancelOrder(order.id));
+  } catch (err) {
+    next(err);
   }
-  res.json(cancelOrder(order.id));
 });
