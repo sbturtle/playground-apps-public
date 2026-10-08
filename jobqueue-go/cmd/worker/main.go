@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -23,6 +24,7 @@ const shutdownTimeout = 10 * time.Second
 
 func main() {
 	workers := flag.Int("workers", 4, "동시에 처리할 작업 수")
+	perKind := flag.Int("per-kind", 2, "작업 종류별 최대 동시 처리 수 (0이면 제한 없음)")
 	outDir := flag.String("out", "./results", "결과 저장 폴더")
 	flag.Parse()
 
@@ -35,7 +37,7 @@ func main() {
 		"thumbnail": fakeWork(300*time.Millisecond, 0.1),
 		"email":     fakeWork(100*time.Millisecond, 0.3),
 	}
-	pool := worker.NewPool(*workers, handlers)
+	pool := worker.NewPool(*workers, *perKind, handlers)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -68,7 +70,7 @@ func main() {
 
 	select {
 	case <-stopped:
-		log.Printf("정상 종료: 결과 %d건 저장, 처리 현황 %v", <-written, pool.Stats())
+		log.Printf("정상 종료: 결과 %d건을 %s에 저장햇습니다, 처리 현황 %v", <-written, filepath.Join(*outDir, "results.jsonl"), pool.Stats())
 	case <-time.After(shutdownTimeout):
 		log.Printf("종료 대기 %s 초과: 진행 중인 작업의 결과는 저장되지 않습니다.", shutdownTimeout)
 		os.Exit(1)
