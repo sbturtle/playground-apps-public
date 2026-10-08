@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/board
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+board:
+  attachment-dir: ./data/attachments
