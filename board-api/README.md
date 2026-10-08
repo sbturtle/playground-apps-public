@@ -21,3 +21,4 @@
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
+| POST | /api/posts/bulk-delete | 관리자 일괄 삭제 (본문: 글 ID 배열) |
