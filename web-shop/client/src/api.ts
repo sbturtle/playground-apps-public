@@ -44,6 +44,7 @@ export interface OrderSummary {
   id: number;
   status: string;
   itemCount: number;
+  totalAmount: number; // 원
   createdAt: string;
 }
 
