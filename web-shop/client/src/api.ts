@@ -87,6 +87,8 @@ export const api = {
   order: (id: number) => requestWithRetry<OrderDetail>(`/orders/${id}`),
   cancelOrder: (id: number) => request<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
   shipment: (id: number) => requestWithRetry<Shipment>(`/shipments/${id}`),
-  notifications: () => requestWithRetry<Notification[]>('/notifications'),
+  notifications: (page = 1) =>
+    requestWithRetry<{ items: Notification[]; total: number; unread: number }>(`/notifications?page=${page}`),
+  markAllRead: () => request<{ changed: number }>('/notifications/read-all', { method: 'POST' }),
   markRead: (id: number) => request<Notification>(`/notifications/${id}/read`, { method: 'POST' }),
 };
