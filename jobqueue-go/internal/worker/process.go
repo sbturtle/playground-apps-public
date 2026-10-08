@@ -30,8 +30,7 @@ func (p *Pool) process(ctx context.Context, j job.Job) job.Result {
 	}
 	res.Duration = time.Since(start)
 
-	p.mu.Lock()
+	// process는 워커 루프 안에서 순서대로 호출되므로 통계 갱신에 잠금이 필요 없습니다.
 	p.stats[j.Kind]++
-	p.mu.Unlock()
 	return res
 }
