@@ -30,6 +30,11 @@ public class PostController {
         return postService.listPosts(user);
     }
 
+    @GetMapping("/popular")
+    public List<PopularPostResponse> popular() {
+        return postService.popularPosts();
+    }
+
     @GetMapping("/{postId}")
     public PostResponse get(@PathVariable Long postId, @RequestAttribute(AuthInterceptor.CURRENT_USER) CurrentUser user) {
         return postService.getPost(postId, user);

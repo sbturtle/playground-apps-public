@@ -29,6 +29,14 @@ public class PostService {
                 .toList();
     }
 
+    /** 조회수 상위 10개 글. 메인 화면에서 자주 호출됩니다. */
+    @Transactional(readOnly = true)
+    public List<PopularPostResponse> popularPosts() {
+        return postRepository.findTop10ByOrderByViewCountDesc().stream()
+                .map(PopularPostResponse::from)
+                .toList();
+    }
+
     @Transactional
     public PostResponse getPost(Long postId, CurrentUser viewer) {
         Post post = findPost(postId);
