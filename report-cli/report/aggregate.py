@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from collections import defaultdict
+from collections import Counter,defaultdict
 from datetime import datetime
 
 from .loader import Event
@@ -39,4 +39,5 @@ def summarize(events: list[Event]) -> dict:
             "p95_seconds": round(percentile(seconds, 95), 3),
             "success_rate": round(sum(e.ok for e in items) / len(items), 4),
         }
-    return {"event_count": len(events), "users": users}
+    reasons = Counter(e.reason for e in events)
+    return {"event_count": len(events), "users": users, "top_failure_reasons": [r for r, _ in reasons.most_common(3)]}

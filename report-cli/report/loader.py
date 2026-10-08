@@ -1,6 +1,6 @@
 """이벤트 CSV 로더.
 
-CSV 컬럼: timestamp(ISO 8601, 시간대 포함), user, duration_ms, status
+CSV 컬럼: timestamp(ISO 8601, 시간대 포함), user, duration_ms, status, reason(실패 사우, 선택)
 예: 2026-03-01T09:00:00+09:00,alice,1200,ok
 """
 from __future__ import annotations
@@ -17,6 +17,7 @@ class Event:
     user: str
     duration_ms: int
     ok: bool
+    reason: str = ""  # 실패 사유 (성공이면 빈 문자열)
 
 
 def _parse_time(value: str) -> datetime:
@@ -37,6 +38,7 @@ def load_events(path: Path) -> list[Event]:
                         user=row["user"].strip(),
                         duration_ms=int(row["duration_ms"]),
                         ok=row["status"].strip().lower() == "ok",
+                        reason=row["reason"].strip(),
                     )
                 )
             except (KeyError, ValueError) as exc:
