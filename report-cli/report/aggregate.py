@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import math
+import statistics
 from collections import defaultdict
 from datetime import datetime
 
@@ -16,13 +16,17 @@ def filter_range(events: list[Event], since: datetime | None, until: datetime | 
     ]
 
 
-def percentile(values: list[float], pct: float) -> float:
-    """최근접 순위(nearest-rank) 방식 백분위수."""
+def percentile(values: list[float], pct: int) -> float:
+    """선형 보간(inclusive) 방식 백분위수. pct는 1~99 정수입니다.
+
+    표본이 적을 때 최근접 순위 방식은 최댓값으로 튀는 경우가 많아 보간 방식을 씁니다.
+    """
     if not values:
         return 0.0
-    ordered = sorted(values)
-    rank = max(1, math.ceil(pct / 100 * len(ordered)))
-    return ordered[rank - 1]
+    if len(values) == 1:
+        return float(values[0])
+    cut_points = statistics.quantiles(values, n=100, method="inclusive")
+    return cut_points[pct - 1]
 
 
 def summarize(events: list[Event]) -> dict:
