@@ -10,4 +10,6 @@ ui.renderBest(loadProgress().bestScore);
 ui.onStart(() => game.start());
 ui.onChoice((index) => game.submitAnswer(index));
 ui.onNext(() => game.nextQuestion());
+ui.onPause(() => game.pause());
+ui.onResume(() => game.resume());
 ui.onRetry(() => game.start());

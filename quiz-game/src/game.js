@@ -2,15 +2,17 @@ import { finalXp, scoreAnswer } from './scoring.js';
 import { recordGame } from './storage.js';
 import { createTimer } from './timer.js';
 
-const QUESTION_SECONDS = 15;
+const LEVEL_SECONDS = { easy: 20, normal: 15, hard: 10 };
 const START_LIVES = 3;
 
 /**
- * 게임 진행 상태: idle → question ⇄ feedback → result
+ * 게임 진행 상태: idle → question ⇄ feedback → result (question ⇄ paused)
  * - question: 답을 고르는 중 (타이머 동작)
+ * - paused: 일시정지 (타이머 멈춤)
  * - feedback: 정답/오답 확인 중 (타이머 정지)
  */
-export function createGame({ questions, ui, now = () => new Date() }) {
+export function createGame({ questions, ui, now = () => new Date(), level = new URLSearchParams(location.search).get('level') }) {
+  const questionSeconds = LEVEL_SECONDS[level]
   const state = { phase: 'idle', index: 0, score: 0, combo: 0, maxCombo: 0, lives: START_LIVES, correct: 0, timeLeft: 0 };
   let timer = null;
 
@@ -22,10 +24,10 @@ export function createGame({ questions, ui, now = () => new Date() }) {
 
   function showQuestion() {
     const question = questions[state.index];
-    state.timeLeft = QUESTION_SECONDS;
+    state.timeLeft = questionSeconds;
     ui.renderQuestion(question, state);
     timer = createTimer(
-      QUESTION_SECONDS,
+      questionSeconds,
       (left) => {
         state.timeLeft = left;
         ui.renderTimer(left);
@@ -54,6 +56,19 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     state.phase = 'feedback';
     ui.renderFeedback(question, choiceIndex, isCorrect, state);
     if (state.lives <= 0) endGame();
+  }
+
+  function pause() {
+    if (state.phase !== 'question') return
+    timer?.stop()
+    state.phase = 'paused'
+    ui.renderPaused(true)
+  }
+
+  function resume() {
+    if (state.phase !== 'paused') return
+    state.phase = 'question'
+    showQuestion()
   }
 
   function nextQuestion() {
@@ -85,6 +100,8 @@ export function createGame({ questions, ui, now = () => new Date() }) {
     start,
     submitAnswer,
     nextQuestion,
+    pause,
+    resume,
     get state() {
       return state;
     },

@@ -39,6 +39,10 @@ export function createUi(doc) {
       $('timer').textContent = `${left}초`;
     },
 
+    renderPaused(paused) {
+      $('paused').hidden = !paused;
+    },
+
     renderFeedback(question, choiceIndex, isCorrect, state) {
       const answerText = question.choices[question.answer];
       $('feedback').textContent = isCorrect
@@ -62,6 +66,12 @@ export function createUi(doc) {
     },
     onNext(handler) {
       $('btn-next').addEventListener('click', handler);
+    },
+    onPause(handler) {
+      $('btn-pause').addEventListener('click', handler);
+    },
+    onResume(handler) {
+      $('btn-resume').addEventListener('click', handler);
     },
     onRetry(handler) {
       $('btn-retry').addEventListener('click', handler);
