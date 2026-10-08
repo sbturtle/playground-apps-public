@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '../auth.js';
+import { authenticate, requireAdmin } from '../auth.js';
 import { cancelOrder, findOrder, listDeliveryMemos, listOrders, toOrderDetail, updateDelivery } from '../services/orderService.js';
 
 export const ordersRouter = Router();
@@ -10,7 +10,7 @@ ordersRouter.get('/orders', (req, res) => {
 });
 
 // 창고 출고 화면: 발송 대기 주문의 배송 요청사항
-ordersRouter.get('/orders/delivery-memos', (_req, res) => {
+ordersRouter.get('/orders/delivery-memos', requireAdmin, (_req, res) => {
   res.json(listDeliveryMemos());
 });
 
