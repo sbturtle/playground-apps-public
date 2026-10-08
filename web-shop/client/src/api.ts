@@ -61,6 +61,8 @@ export interface OrderDetail {
   receiverName: string;
   receiverPhone: string;
   address: string;
+  deliveryMemo: string;
+  addressUpdatedAt: string | null;
   createdAt: string;
   items: OrderItem[];
 }
@@ -86,6 +88,8 @@ export const api = {
   orders: () => requestWithRetry<OrderSummary[]>('/orders'),
   order: (id: number) => requestWithRetry<OrderDetail>(`/orders/${id}`),
   cancelOrder: (id: number) => request<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
+  updateDelivery: (id: number, body: Record<string, string>) =>
+    request<OrderDetail>(`/orders/${id}/delivery`, { method: 'PATCH', body: JSON.stringify(body) }),
   shipment: (id: number) => requestWithRetry<Shipment>(`/shipments/${id}`),
   notifications: () => requestWithRetry<Notification[]>('/notifications'),
   markRead: (id: number) => request<Notification>(`/notifications/${id}/read`, { method: 'POST' }),
