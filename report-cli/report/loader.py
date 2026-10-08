@@ -1,6 +1,8 @@
 """이벤트 CSV 로더.
 
-CSV 컬럼: timestamp(ISO 8601, 시간대 포함), user, duration_ms, status
+CSV 컬럼: timestamp(ISO 8601, 시간대 포함), user, duration_ms 또는 duration_s, status
+- duration_ms: 밀리초 정수 (기존 형식)
+- duration_s: 초 단위 실수 (새 수집기 형식, 예: 1.25)
 예: 2026-03-01T09:00:00+09:00,alice,1200,ok
 """
 from __future__ import annotations
@@ -26,6 +28,12 @@ def _parse_time(value: str) -> datetime:
     return ts
 
 
+def _parse_duration_ms(row: dict[str, str]) -> int:
+    if row.get("duration_ms"):
+        return int(row["duration_ms"])
+    return round(float(row["duration_s"]))
+
+
 def load_events(path: Path) -> list[Event]:
     events: list[Event] = []
     with path.open(newline="", encoding="utf-8") as f:
@@ -35,7 +43,7 @@ def load_events(path: Path) -> list[Event]:
                     Event(
                         timestamp=_parse_time(row["timestamp"]),
                         user=row["user"].strip(),
-                        duration_ms=int(row["duration_ms"]),
+                        duration_ms=_parse_duration_ms(row),
                         ok=row["status"].strip().lower() == "ok",
                     )
                 )
