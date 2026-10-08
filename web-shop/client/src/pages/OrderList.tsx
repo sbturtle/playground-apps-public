@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, type OrderSummary } from '../api';
-import { STATUS_LABEL, formatDate } from '../format';
+import { STATUS_LABEL, formatDate, formatWon } from '../format';
 
 export function OrderList() {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -20,6 +20,7 @@ export function OrderList() {
           <th>주문 번호</th>
           <th>상태</th>
           <th>상품 수</th>
+          <th>결제 금액</th>
           <th>주문일</th>
         </tr>
       </thead>
@@ -31,6 +32,7 @@ export function OrderList() {
             </td>
             <td>{STATUS_LABEL[order.status]}</td>
             <td>{order.itemCount}개</td>
+            <td>{formatWon(order.totalAmount)}</td>
             <td>{formatDate(order.createdAt)}</td>
           </tr>
         ))}
