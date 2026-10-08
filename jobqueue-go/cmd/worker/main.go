@@ -23,6 +23,7 @@ const shutdownTimeout = 10 * time.Second
 
 func main() {
 	workers := flag.Int("workers", 4, "동시에 처리할 작업 수")
+	retries := flag.Int("retries", 6, "작업당 최대 시도 횟수 (0이면 재시도하지 않음)")
 	outDir := flag.String("out", "./results", "결과 저장 폴더")
 	flag.Parse()
 
@@ -35,7 +36,7 @@ func main() {
 		"thumbnail": fakeWork(300*time.Millisecond, 0.1),
 		"email":     fakeWork(100*time.Millisecond, 0.3),
 	}
-	pool := worker.NewPool(*workers, handlers)
+	pool := worker.NewPool(*workers, handlers, *retries)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -56,6 +57,20 @@ func main() {
 	}()
 
 	go feed(ctx, pool)
+
+	// 5초마다 처리 현황을 남깁니다.
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				log.Printf("처리 현왕: %v", pool.Snapshot())
+			}
+		}
+	}()
 
 	<-ctx.Done()
 	log.Println("종료 신호를 받았습니다. 진행 중인 작업을 마무리합니다.")
