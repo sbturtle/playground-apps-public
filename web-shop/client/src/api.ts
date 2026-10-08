@@ -52,6 +52,7 @@ export interface OrderItem {
   productName: string;
   unitPrice: number;
   quantity: number;
+  cancelled: boolean;
   shipmentId: number | null;
 }
 
@@ -86,6 +87,8 @@ export const api = {
   orders: () => requestWithRetry<OrderSummary[]>('/orders'),
   order: (id: number) => requestWithRetry<OrderDetail>(`/orders/${id}`),
   cancelOrder: (id: number) => request<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
+  cancelItem: (orderId: number, itemId: number) =>
+    request<{ orderId: number; itemId: number; refunded: number }>(`/orders/${orderId}/items/${itemId}/cancel`, { method: 'POST' }),
   shipment: (id: number) => requestWithRetry<Shipment>(`/shipments/${id}`),
   notifications: () => requestWithRetry<Notification[]>('/notifications'),
   markRead: (id: number) => request<Notification>(`/notifications/${id}/read`, { method: 'POST' }),
