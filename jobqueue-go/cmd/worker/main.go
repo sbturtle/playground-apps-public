@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -24,6 +25,7 @@ const shutdownTimeout = 10 * time.Second
 func main() {
 	workers := flag.Int("workers", 4, "동시에 처리할 작업 수")
 	outDir := flag.String("out", "./results", "결과 저장 폴더")
+	timeouts := flag.String("timeout", "thumbnail=2s", "작업 종류별 처리 제한 시간 (예: thumbnail=2s,email=500ms). 목록에 업는 종류는 제한 없음")  
 	flag.Parse()
 
 	st, err := store.Open(*outDir)
@@ -35,7 +37,7 @@ func main() {
 		"thumbnail": fakeWork(300*time.Millisecond, 0.1),
 		"email":     fakeWork(100*time.Millisecond, 0.3),
 	}
-	pool := worker.NewPool(*workers, handlers)
+	pool := worker.NewPool(*workers, handlers, parseTimeouts(*timeouts))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -88,6 +90,24 @@ func feed(ctx context.Context, pool *worker.Pool) {
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
+}
+
+// parseTimeouts는 "종류=시간,종류=시간" 형식을 읽습니다. 형식이 틀린 항목은 로그를 남기고 건너뜁니다.
+func parseTimeouts(s string) map[string]time.Duration {
+	out := make(map[string]time.Duration)
+	for _, part := range strings.Split(s, ",") {
+		kind, value, ok := strings.Cut(strings.TrimSpace(part), "=")
+		if !ok {
+			continue
+		}
+		d, err := time.ParseDuration(value)
+		if err != nil {
+			log.Printf("제한 시간 형식 오류 %q: %v", part, err)
+			continue
+		}
+		out[kind] = d
+	}
+	return out
 }
 
 func fakeWork(d time.Duration, failRate float64) worker.Handler {
