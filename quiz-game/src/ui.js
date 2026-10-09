@@ -12,6 +12,14 @@ export function createUi(doc) {
       $('best').textContent = best > 0 ? `최고 기록 ${best}점` : '';
     },
 
+    setPlayer(name) {
+        $('player').value = name;
+    },
+
+    onPlayerChange(handler) {
+        $('player').addEventListener('change', () => handler($('player').value));
+    },
+
     renderQuestion(question, state) {
       $('question-text').textContent = `${state.index + 1}. ${question.text}`;
       $('feedback').textContent = '';
