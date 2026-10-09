@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { authenticate } from '../auth.js';
+import { authenticate, requireAdmin } from '../auth.js';
 import { cancelOrder, findOrder, listOrders, toOrderDetail } from '../services/orderService.js';
+import { shipOrder } from '../services/shipmentService.js';
 
 export const ordersRouter = Router();
 ordersRouter.use(authenticate);
@@ -23,4 +24,8 @@ ordersRouter.post('/orders/:orderId/cancel', (req, res) => {
     return res.status(403).json({ message: '본인 주문만 취소할 수 있습니다.' });
   }
   res.json(cancelOrder(order.id));
+});
+
+ordersRouter.post('/orders/:orderId/ship', requireAdmin, (req, res) => {
+  res.json(shipOrder(Number(req.params.orderId)));
 });
