@@ -4,6 +4,7 @@ import { notificationsRouter } from './routes/notifications.js';
 import { ordersRouter } from './routes/orders.js';
 import { shipmentsRouter } from './routes/shipments.js';
 import { seed } from './seed.js';
+import { CarrierError } from './services/carrierClient.js';
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use('/api', notificationsRouter);
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof NotFoundError) return res.status(404).json({ message: '대상을 찾을 수 없습니다.' });
   if (err instanceof ConflictError) return res.status(409).json({ message: err.message });
+  if (err instanceof CarrierError) return res.status(502).json({ message: err.message });
   console.error(err);
   res.status(500).json({ message: '일시적인 오류가 발생했습니다.' });
 });
