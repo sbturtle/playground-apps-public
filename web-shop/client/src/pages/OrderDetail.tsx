@@ -31,6 +31,20 @@ export function OrderDetail() {
     }
   };
 
+  const ship = async () => {
+    if (!confirm('주문의 모든 상품을 발송 처리할까요?')) return;
+    setBusy(true);
+    try {
+      await api.shipOrder(order.id);
+      setOrder({ ...order, status: 'SHIPPED' });
+      setMessage('발송 처리를 완료햇습니다.');
+    } catch (err) {
+      setMessage((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <article>
       <h1>
@@ -49,9 +63,14 @@ export function OrderDetail() {
       </ul>
       <p>합계 {formatWon(total)}</p>
       {order.status === 'PAID' && (
-        <button onClick={cancel} disabled={busy}>
-          주문 취소
-        </button>
+        <>
+          <button onClick={cancel} disabled={busy}>
+            주문 취소
+          </button>
+          <button onClick={ship} disabled={busy}>
+            주문 전체 발송
+          </button>
+        </>
       )}
       {message && <p role="status">{message}</p>}
     </article>
