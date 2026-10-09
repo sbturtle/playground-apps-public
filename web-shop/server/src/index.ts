@@ -2,11 +2,14 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import { ConflictError, NotFoundError } from './errors.js';
 import { notificationsRouter } from './routes/notifications.js';
 import { ordersRouter } from './routes/orders.js';
+import { sessionRouter } from './routes/session.js';
 import { shipmentsRouter } from './routes/shipments.js';
 import { seed } from './seed.js';
 
 const app = express();
 app.use(express.json());
+// 로그인은 인증 미들웨어보다 먼저 처리합니다.
+app.use('/api', sessionRouter);
 app.use('/api', ordersRouter);
 app.use('/api', shipmentsRouter);
 app.use('/api', notificationsRouter);
