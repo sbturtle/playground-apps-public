@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from report.aggregate import filter_range, percentile, summarize
+from report.aggregate import filter_range, percentile, rank_users, summarize
 from report.loader import Event
 
 
@@ -26,3 +26,9 @@ def test_filter_range_is_half_open():
     since = datetime(2026, 3, 1, 1, tzinfo=timezone.utc)
     until = datetime(2026, 3, 1, 3, tzinfo=timezone.utc)
     assert [e.timestamp.hour for e in filter_range(events, since, until)] == [1, 2]
+
+
+def test_rank_users_orders_by_total_seconds():
+    summary = summarize([ev("a", 1000), ev("b", 3000), ev("c", 2000)])
+    rows = rank_users(summary, limit=2)
+    assert [(r["rank"], r["user"]) for r in rows] == [(1, "b"), (2, "c")]
