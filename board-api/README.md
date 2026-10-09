@@ -17,7 +17,9 @@
 
 | 메서드 | 경로 | 설명 |
 |---|---|---|
-| GET | /api/posts | 글 목록 (최신순) |
+| GET | /api/posts | 글 목록. `sort`: `latest`(최신순, 기본)·`views`(조회수순), `order`: `desc`(기본)·`asc` |
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
+
+글 목록은 최신순(기본)·조회수순 중에서 고를 수 잇습니다. 정렬 컬럼은 허용 목록으로 확인한 뒤 쿼리에 넣습니다. 조회수가 같은 글의 순서는 보장되지 안습니다.
