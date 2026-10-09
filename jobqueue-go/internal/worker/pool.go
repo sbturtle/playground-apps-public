@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"sync"
+	"time"
 
 	"example.com/jobqueue/internal/job"
 )
@@ -14,6 +15,7 @@ type Handler func(ctx context.Context, j job.Job) error
 type Pool struct {
 	size     int
 	handlers map[string]Handler
+	timeouts map[string]time.Duration // 종류별 시도 제한 시간 (없으면 제한 없음)
 	jobs     chan job.Job
 	results  chan job.Result
 	wg       sync.WaitGroup
@@ -22,10 +24,11 @@ type Pool struct {
 	stats map[string]int // 종류별 처리 건수
 }
 
-func NewPool(size int, handlers map[string]Handler) *Pool {
+func NewPool(size int, handlers map[string]Handler, timeouts map[string]time.Duration) *Pool {
 	return &Pool{
 		size:     size,
 		handlers: handlers,
+		timeouts: timeouts,
 		jobs:     make(chan job.Job, size*2),
 		results:  make(chan job.Result, size*2),
 		stats:    make(map[string]int),
