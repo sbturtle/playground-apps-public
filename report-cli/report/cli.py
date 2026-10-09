@@ -5,9 +5,9 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from .aggregate import filter_range, summarize
+from .aggregate import filter_range, rank_users, summarize
 from .loader import load_events
-from .writer import write_json
+from .writer import write_json, write_table
 
 KST = timezone(timedelta(hours=9))
 
@@ -24,6 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--since", help="이 시각 이후(포함)만 집계")
     parser.add_argument("--until", help="이 시각 이전(미포함)만 집계")
     parser.add_argument("-o", "--out", type=Path, help="결과 JSON 경로 (없으면 표준 출력)")
+    parser.add_argument("--rank", action="store_true", help="요약 대신 사용자 순이 표를 출력")
+    parser.add_argument("--limit", type=int, default=10, help="순위 표에 보여 줄 사용자 수 (기본 10, 0이면 전체)")
     return parser
 
 
@@ -38,6 +40,13 @@ def main(argv: list[str] | None = None) -> int:
     since = parse_date(args.since) if args.since else None
     until = parse_date(args.until) if args.until else None
     summary = summarize(filter_range(events, since, until))
+
+    if args.rank:
+        if args.limit < 0:
+            print('입력 오류: --limit은 0 이상이어야 합니다.', file=sys.stderr)
+            return 2
+        write_table(rank_users(summary, args.limit))
+        return 0
 
     if args.out:
         write_json(args.out, summary)

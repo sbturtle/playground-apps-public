@@ -40,3 +40,9 @@ def summarize(events: list[Event]) -> dict:
             "success_rate": round(sum(e.ok for e in items) / len(items), 4),
         }
     return {"event_count": len(events), "users": users}
+
+
+def rank_users(summary: dict, limit: int = 10) -> list[dict]:
+    """총 처리 시간이 긴 순서로 사용자 순위를 매깁니다. limit이 0이면 전체를 돌려줍니다."""
+    ordered = sorted(summary["users"].items(), key=lambda kv: kv[1]["total_seconds"], reverse=True)
+    return [{"rank": i, "user": user, **stats} for i, (user, stats) in enumerate(ordered[:limit], start=1)]

@@ -27,3 +27,13 @@ def write_json(path: Path | None, data: dict) -> None:
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
         raise
+
+
+def write_table(rows: list[dict]) -> None:
+    """순위 표를 표준 출력에 씁니다. 마지막 줄에는 표에 나온 사용자들의 합을 붙입니다."""
+    print(f"{'순위':>4}  {'사용자':<12}{'요청 수':>8}{'총 시간(초)':>12}{'성공률':>8}")
+    for r in rows:
+        print(f"{r['rank']:>4}  {r['user']:<12}{r['count']:>8}{r['total_seconds']:>12.3f}{r['success_rate']:>8.1%}")
+    total_count = sum(r["count"] for r in rows)
+    total_seconds = sum(r["total_seconds"] for r in rows)
+    print(f"{'소게':>4}  {'':<12}{total_count:>8}{total_seconds:>12.3f}")
