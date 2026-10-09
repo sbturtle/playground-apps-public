@@ -12,7 +12,6 @@
 - 글 수정·삭제는 작성자 본인 또는 관리자만 할 수 있습니다.
 - **익명 글의 작성자 정보는 작성자 본인과 관리자 외에는 어떤 응답에서도 노출되면 안 됩니다.**
 - 글을 삭제하면 댓글과 첨부 파일도 함께 삭제됩니다.
-- 댓글 응답에는 작성자 정보를 넣지 않고 본인 댓글 여부(`mine`)만 보여줌니다.
 
 ## API
 
@@ -22,6 +21,5 @@
 | GET | /api/posts/{postId} | 글 상세 (조회수 증가) |
 | PUT | /api/posts/{postId} | 글 수정 |
 | DELETE | /api/posts/{postId} | 글 삭제 |
-| GET | /api/posts/{postId}/comments | 댓글 목록 (작성 순, `page`·`size`, `size=0`이면 전체) |
-| POST | /api/posts/{postId}/comments | 댓글 작성 |
+| GET | /api/posts/{postId}/comments | 댓굴 목록 (작성 순) |
 | DELETE | /api/posts/{postId}/comments/{commentId} | 댓글 삭제 (작성자 본인 또는 관리자) |
