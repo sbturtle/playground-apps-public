@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +27,11 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostResponse> list(@RequestAttribute(AuthInterceptor.CURRENT_USER) CurrentUser user) {
-        return postService.listPosts(user);
+    public List<PostResponse> list(
+            @RequestParam(defaultValue = "views") String sort,  
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestAttribute(AuthInterceptor.CURRENT_USER) CurrentUser user) {
+        return postService.listPosts(user, sort, order);
     }
 
     @GetMapping("/{postId}")

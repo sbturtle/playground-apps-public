@@ -5,29 +5,43 @@ import com.example.board.comment.CommentRepository;
 import com.example.board.common.ForbiddenException;
 import com.example.board.common.NotFoundException;
 import com.example.board.security.CurrentUser;
+import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PostService {
 
+    /** 정렬 이름 → 컬럼. 쿼리에는 이 목록에 있는 컬럼만 넣습니다. */
+    private static final Map<String, String> SORT_COLUMNS = Map.of("latest", "created_at", "views", "view_count");
+
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final AttachmentStorage attachmentStorage;
+    private final EntityManager entityManager;
 
-    public PostService(PostRepository postRepository, CommentRepository commentRepository, AttachmentStorage attachmentStorage) {
+    public PostService(
+            PostRepository postRepository,
+            CommentRepository commentRepository,
+            AttachmentStorage attachmentStorage,
+            EntityManager entityManager) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.attachmentStorage = attachmentStorage;
+        this.entityManager = entityManager;
     }
 
-    @Transactional(readOnly = true)
-    public List<PostResponse> listPosts(CurrentUser viewer) {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(post -> PostResponse.of(post, viewer))
-                .toList();
-    }
+	/** 정렬 기준과 방향에 따라 글 목록을 돌려줌니다. */
+	@Transactional(readOnly = true)
+	public List<PostResponse> listPosts(CurrentUser viewer, String sort, String order) {
+		String column = SORT_COLUMNS.getOrDefault(sort, "created_at");
+		List<Post> posts = entityManager
+				.createNativeQuery("select * from post order by " + column + " " + order, Post.class)
+				.getResultList();
+		return posts.stream().map(post -> PostResponse.of(post, viewer)).toList();
+	}
 
     @Transactional
     public PostResponse getPost(Long postId, CurrentUser viewer) {
