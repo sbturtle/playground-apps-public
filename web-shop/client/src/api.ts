@@ -86,6 +86,7 @@ export const api = {
   orders: () => requestWithRetry<OrderSummary[]>('/orders'),
   order: (id: number) => requestWithRetry<OrderDetail>(`/orders/${id}`),
   cancelOrder: (id: number) => request<{ orderId: number; refunded: number }>(`/orders/${id}/cancel`, { method: 'POST' }),
+  shipOrder: (id: number) => request<Shipment[]>(`/orders/${id}/ship`, { method: 'POST' }),
   shipment: (id: number) => requestWithRetry<Shipment>(`/shipments/${id}`),
   notifications: () => requestWithRetry<Notification[]>('/notifications'),
   markRead: (id: number) => request<Notification>(`/notifications/${id}/read`, { method: 'POST' }),
